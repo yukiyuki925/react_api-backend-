@@ -13,7 +13,17 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return Task::all();
+        $tasks = Task::all()->map(function ($task) {
+            return [
+                'id' => $task->id,
+                'title' => $task->title,
+                'description' => $task->description,
+                'created_at' => $task->created_at_formatted,
+                'updated_at' => $task->updated_at_formatted,
+            ];
+        });
+
+        return response()->json($tasks);
     }
 
     /**
@@ -30,7 +40,7 @@ class TaskController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Task::findOrFail($id);
     }
 
     /**
@@ -38,7 +48,16 @@ class TaskController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        $task->update($request->all());
+
+        return response()->json([
+            'id' => $task->id,
+            'title' => $task->title,
+            'description' => $task->description,
+            'created_at' => $task->created_at_formatted,
+            'updated_at' => $task->updated_at_formatted,
+        ]);
     }
 
     /**
@@ -46,6 +65,9 @@ class TaskController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        $task->delete();
+
+        return response()->json(null, 204);
     }
 }
